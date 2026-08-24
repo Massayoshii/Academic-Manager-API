@@ -29,7 +29,7 @@ public class CursoService {
     }
 
     @Transactional(readOnly = true)
-    public Curso findById(Long id){
+    public Curso buscarPorId(Long id){
         return buscarEntidadePorId(id);
     }
 
