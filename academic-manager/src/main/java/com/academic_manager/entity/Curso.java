@@ -18,9 +18,9 @@ public class Curso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nome")
+    @Column(name = "nome" , nullable = false)
     private String nome;
 
-    @Column(name = "descricao")
+    @Column(name = "descricao" , nullable = false)
     private String descricao;
 }
