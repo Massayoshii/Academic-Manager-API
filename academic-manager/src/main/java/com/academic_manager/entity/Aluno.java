@@ -32,4 +32,8 @@ public class Aluno {
 
     @Column(name = "data_nascimento" , nullable = false)
     private LocalDate dataNascimento;
+
+    @ManyToOne
+    @JoinColumn(name = "curso_id" , nullable = false)
+    private Curso curso;
 }
