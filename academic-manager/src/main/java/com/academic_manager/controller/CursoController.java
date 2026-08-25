@@ -1,5 +1,7 @@
 package com.academic_manager.controller;
 
+import com.academic_manager.dto.CursoRequestDTO;
+import com.academic_manager.dto.CursoResponseDTO;
 import com.academic_manager.entity.Curso;
 import com.academic_manager.service.CursoService;
 import lombok.RequiredArgsConstructor;
@@ -18,28 +20,26 @@ public class CursoController {
     private final CursoService service;
 
     @PostMapping
-    public ResponseEntity<Curso> cadastrarCurso(@RequestBody Curso curso){
-        Curso response = service.criar(curso);
+    public ResponseEntity<CursoResponseDTO> cadastrarCurso(@RequestBody CursoRequestDTO request){
+        CursoResponseDTO response = service.criar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<Curso>> listarCursos(){
-        List<Curso> response = service.listar();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<CursoResponseDTO>> listarCursos(){
+        return ResponseEntity.ok(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Curso> buscarCursoPorId(@PathVariable Long id){
-        Curso response = service.buscarPorId(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<CursoResponseDTO> buscarCursoPorId(@PathVariable Long id){
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Curso> atualizarCurso(@PathVariable Long id,
-                                                @RequestBody Curso curso){
-        Curso response = service.atualizar(id , curso);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<CursoResponseDTO> atualizarCurso(@PathVariable Long id,
+                                                @RequestBody CursoRequestDTO request){
+
+        return ResponseEntity.ok(service.atualizar(id , request));
     }
 
     @DeleteMapping("/{id}")

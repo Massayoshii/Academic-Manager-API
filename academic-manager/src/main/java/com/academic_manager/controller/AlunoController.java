@@ -1,5 +1,7 @@
 package com.academic_manager.controller;
 
+import com.academic_manager.dto.AlunoRequestDTO;
+import com.academic_manager.dto.AlunoResponseDTO;
 import com.academic_manager.entity.Aluno;
 import com.academic_manager.entity.Curso;
 import com.academic_manager.service.AlunoService;
@@ -18,28 +20,25 @@ public class AlunoController {
     private final AlunoService service;
 
     @PostMapping
-    public ResponseEntity<Aluno> cadastrarAluno(@RequestBody Aluno aluno){
-        Aluno response = service.cadastrar(aluno);
+    public ResponseEntity<AlunoResponseDTO> cadastrarAluno(@RequestBody AlunoRequestDTO request){
+        AlunoResponseDTO response = service.cadastrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<Aluno>> listarAlunos(){
-        List<Aluno> response = service.listar();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<AlunoResponseDTO>> listarAlunos(){
+        return ResponseEntity.ok(service.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Aluno> buscarAlunoPorId(@PathVariable Long id){
-        Aluno response = service.buscarPorId(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AlunoResponseDTO> buscarAlunoPorId(@PathVariable Long id){
+        return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Aluno> atualizarAluno(@PathVariable Long id,
-                                                @RequestBody Aluno aluno){
-        Aluno response = service.atualizar(id , aluno);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<AlunoResponseDTO> atualizarAluno(@PathVariable Long id,
+                                                @RequestBody AlunoRequestDTO request){
+        return ResponseEntity.ok(service.atualizar(id, request));
     }
 
     @DeleteMapping("/{id}")

@@ -1,7 +1,11 @@
 package com.academic_manager.service;
 
+import com.academic_manager.dto.AlunoRequestDTO;
+import com.academic_manager.dto.AlunoResponseDTO;
 import com.academic_manager.entity.Aluno;
+import com.academic_manager.entity.Curso;
 import com.academic_manager.repository.AlunoRepository;
+import com.academic_manager.repository.CursoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,46 +17,60 @@ import java.util.List;
 public class AlunoService {
 
     private final AlunoRepository repository;
+    private final CursoRepository cursoRepository;
 
     @Transactional
-    public Aluno cadastrar(Aluno aluno) {
-        if (repository.existsByEmail(aluno.getEmail())) {
-            throw new IllegalArgumentException("Aluno com email ou cpf ja cadastrado");
-        }
+    public AlunoResponseDTO cadastrar(AlunoRequestDTO request) {
+        Curso curso = cursoRepository.findById(request.cursoId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Curso nao encontrado"));
 
-        if (repository.existsByCpf(aluno.getCpf())){
-            throw new IllegalArgumentException("Aluno com CPF ja cadastrado");
-        }
+        Aluno aluno = new Aluno();
 
-        return repository.save(aluno);
+        aluno.setNome(request.nome());
+        aluno.setEmail(request.email());
+        aluno.setCpf(request.cpf());
+        aluno.setDataNascimento(request.dataNascimento());
+        aluno.setCurso(curso);
+
+        Aluno alunoSalvo = repository.save(aluno);
+        return AlunoResponseDTO.fromEntity(alunoSalvo);
     }
 
     @Transactional(readOnly = true)
-    public List<Aluno> listar() {
-        return repository.findAll();
+    public List<AlunoResponseDTO> listar() {
+        return repository.findAll().stream().map(AlunoResponseDTO::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
-    public Aluno buscarPorId(Long id){
-        return buscarEntidadePorId(id);
-    }
-
-    @Transactional
-    public Aluno atualizar(Long id , Aluno alunoAtualizado){
+    public AlunoResponseDTO buscarPorId(Long id){
         Aluno aluno = buscarEntidadePorId(id);
+        return AlunoResponseDTO.fromEntity(aluno);
+    }
 
-        if (repository.existsByEmailAndIdNot(alunoAtualizado.getEmail() , id)){
-            throw new IllegalArgumentException("Aluno ja cadastrado com email: " + alunoAtualizado.getEmail());
+    @Transactional
+    public AlunoResponseDTO atualizar(Long id , AlunoRequestDTO request){
+        Aluno aluno = buscarEntidadePorId(id);
+        Curso curso = cursoRepository.findById(request.cursoId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Curso nao encontrado"));
+
+        if (repository.existsByEmailAndIdNot(request.email() , id)){
+            throw new IllegalArgumentException("Aluno ja cadastrado com email: " + request.email());
         }
-        if (repository.existsByCpfAndIdNot(alunoAtualizado.getCpf() , id)){
-            throw new IllegalArgumentException("CPF ja cadastraddo com CPF : " + alunoAtualizado.getCpf());
+        if (repository.existsByCpfAndIdNot(request.cpf() , id)){
+            throw new IllegalArgumentException("CPF ja cadastraddo com CPF : " + request.cpf());
         }
 
-        aluno.setNome(alunoAtualizado.getNome());
-        aluno.setEmail(alunoAtualizado.getEmail());
-        aluno.setCpf(alunoAtualizado.getCpf());
+        aluno.setNome(request.nome());
+        aluno.setEmail(request.email());
+        aluno.setCpf(request.cpf());
+        aluno.setDataNascimento(request.dataNascimento());
+        aluno.setCurso(curso);
 
-        return aluno;
+        Aluno alunoAtualizado = repository.save(aluno);
+
+        return AlunoResponseDTO.fromEntity(alunoAtualizado);
     }
 
     @Transactional

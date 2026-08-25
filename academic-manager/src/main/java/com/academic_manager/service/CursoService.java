@@ -1,5 +1,8 @@
 package com.academic_manager.service;
 
+import com.academic_manager.dto.AlunoResponseDTO;
+import com.academic_manager.dto.CursoRequestDTO;
+import com.academic_manager.dto.CursoResponseDTO;
 import com.academic_manager.entity.Curso;
 import com.academic_manager.repository.CursoRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,35 +18,44 @@ public class CursoService {
     private final CursoRepository repository;
 
     @Transactional
-    public Curso criar(Curso curso){
-        if (repository.existsByNome(curso.getNome())){
-            throw new IllegalArgumentException("Ja existe curso com o nome: " + curso.getNome());
+    public CursoResponseDTO criar(CursoRequestDTO request){
+        if (repository.existsByNome(request.nome())){
+            throw new IllegalArgumentException("Ja existe curso com o nome: " + request.nome());
         }
-        return repository.save(curso);
 
+        Curso curso = new Curso();
+        curso.setNome(request.nome());
+        curso.setDescricao(request.descricao());
+
+        Curso cursoSalvo = repository.save(curso);
+        return CursoResponseDTO.fromEntity(cursoSalvo);
     }
 
     @Transactional(readOnly = true)
-    public List<Curso> listar(){
-        return repository.findAll();
+    public List<CursoResponseDTO> listar(){
+        return repository.findAll().stream().map(CursoResponseDTO::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
-    public Curso buscarPorId(Long id){
-        return buscarEntidadePorId(id);
+    public CursoResponseDTO buscarPorId(Long id){
+        Curso curso = buscarEntidadePorId(id);
+        return CursoResponseDTO.fromEntity(curso);
     }
 
     @Transactional
-    public Curso atualizar(Long id , Curso cursoAtualizado){
+    public CursoResponseDTO atualizar(Long id , CursoRequestDTO request){
         Curso curso = buscarEntidadePorId(id);
 
-        if (repository.existsByNomeAndIdNot(cursoAtualizado.getNome() , id)){
-            throw new IllegalArgumentException("Já existe curso com o nome: " + cursoAtualizado.getNome());
+        if (repository.existsByNomeAndIdNot(request.nome() , id)){
+            throw new IllegalArgumentException("Já existe curso com o nome: " + request.nome());
         }
 
-        curso.setNome(cursoAtualizado.getNome());
-        curso.setDescricao(cursoAtualizado.getDescricao());
-        return curso;
+        curso.setNome(request.nome());
+        curso.setDescricao(request.descricao());
+
+        Curso cursoAtualizado = repository.save(curso);
+
+        return CursoResponseDTO.fromEntity(cursoAtualizado);
     }
 
     @Transactional
