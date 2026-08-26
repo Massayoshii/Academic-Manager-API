@@ -4,6 +4,7 @@ import com.academic_manager.dto.CursoRequestDTO;
 import com.academic_manager.dto.CursoResponseDTO;
 import com.academic_manager.entity.Curso;
 import com.academic_manager.service.CursoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class CursoController {
     private final CursoService service;
 
     @PostMapping
-    public ResponseEntity<CursoResponseDTO> cadastrarCurso(@RequestBody CursoRequestDTO request){
+    public ResponseEntity<CursoResponseDTO> cadastrarCurso(@RequestBody @Valid CursoRequestDTO request){
         CursoResponseDTO response = service.criar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -37,7 +38,7 @@ public class CursoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CursoResponseDTO> atualizarCurso(@PathVariable Long id,
-                                                @RequestBody CursoRequestDTO request){
+                                                @RequestBody @Valid CursoRequestDTO request){
 
         return ResponseEntity.ok(service.atualizar(id , request));
     }

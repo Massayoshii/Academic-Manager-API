@@ -5,6 +5,7 @@ import com.academic_manager.dto.AlunoResponseDTO;
 import com.academic_manager.entity.Aluno;
 import com.academic_manager.entity.Curso;
 import com.academic_manager.service.AlunoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class AlunoController {
     private final AlunoService service;
 
     @PostMapping
-    public ResponseEntity<AlunoResponseDTO> cadastrarAluno(@RequestBody AlunoRequestDTO request){
+    public ResponseEntity<AlunoResponseDTO> cadastrarAluno(@RequestBody @Valid AlunoRequestDTO request){
         AlunoResponseDTO response = service.cadastrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -37,7 +38,7 @@ public class AlunoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<AlunoResponseDTO> atualizarAluno(@PathVariable Long id,
-                                                @RequestBody AlunoRequestDTO request){
+                                                @RequestBody @Valid AlunoRequestDTO request){
         return ResponseEntity.ok(service.atualizar(id, request));
     }
 
