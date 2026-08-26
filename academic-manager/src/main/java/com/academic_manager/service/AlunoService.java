@@ -4,6 +4,8 @@ import com.academic_manager.dto.AlunoRequestDTO;
 import com.academic_manager.dto.AlunoResponseDTO;
 import com.academic_manager.entity.Aluno;
 import com.academic_manager.entity.Curso;
+import com.academic_manager.exception.AlreadyExistsException;
+import com.academic_manager.exception.ResourceNotFoundException;
 import com.academic_manager.repository.AlunoRepository;
 import com.academic_manager.repository.CursoRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ public class AlunoService {
     public AlunoResponseDTO cadastrar(AlunoRequestDTO request) {
         Curso curso = cursoRepository.findById(request.cursoId())
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Curso nao encontrado"));
+                        new ResourceNotFoundException("Curso nao encontrado com o id: "+ request.cursoId()));
 
         Aluno aluno = new Aluno();
 
@@ -53,13 +55,13 @@ public class AlunoService {
         Aluno aluno = buscarEntidadePorId(id);
         Curso curso = cursoRepository.findById(request.cursoId())
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Curso nao encontrado"));
+                        new ResourceNotFoundException("Curso nao encontrado com o id: "+ request.cursoId()));
 
         if (repository.existsByEmailAndIdNot(request.email() , id)){
-            throw new IllegalArgumentException("Aluno ja cadastrado com email: " + request.email());
+            throw new AlreadyExistsException("Aluno ja cadastrado com email: " + request.email());
         }
         if (repository.existsByCpfAndIdNot(request.cpf() , id)){
-            throw new IllegalArgumentException("CPF ja cadastraddo com CPF : " + request.cpf());
+            throw new AlreadyExistsException("CPF ja cadastraddo com CPF : " + request.cpf());
         }
 
         aluno.setNome(request.nome());
@@ -83,6 +85,6 @@ public class AlunoService {
 
     private Aluno buscarEntidadePorId(Long id){
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Aluno nao encontrado pelo id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Aluno nao encontrado com o id: " + id));
     }
 }
