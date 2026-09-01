@@ -1,5 +1,7 @@
 package com.academic_manager.service;
 
+import com.academic_manager.dto.ProfessorRequestDTO;
+import com.academic_manager.dto.ProfessorResponseDTO;
 import com.academic_manager.entity.Professor;
 import com.academic_manager.exception.AlreadyExistsException;
 import com.academic_manager.exception.ResourceNotFoundException;
@@ -18,39 +20,49 @@ public class ProfessorService {
 
     //CREATE
     @Transactional
-    public Professor cadastrar(Professor professor){
-        if (repository.existsByEmail(professor.getEmail())){
-            throw new AlreadyExistsException("Professor ja cadastrado com o email: " + professor.getEmail());
+    public ProfessorResponseDTO cadastrar(ProfessorRequestDTO request){
+        if (repository.existsByEmail(request.email())){
+            throw new AlreadyExistsException("Professor ja cadastrado com o email: " + request.email());
         }
 
-        return repository.save(professor);
+        Professor professor = new Professor();
+        professor.setNome(request.email());
+        professor.setEmail(request.email());
+        professor.setEspecialidade(request.especialidade());
+
+        Professor professorSalvo = repository.save(professor);
+
+        return ProfessorResponseDTO.fromEntity(professorSalvo);
     }
 
     //READ
     @Transactional(readOnly = true)
-    public List<Professor> listar(){
-        return repository.findAll();
+    public List<ProfessorResponseDTO> listar(){
+        return repository.findAll().stream().map(ProfessorResponseDTO::fromEntity).toList();
     }
 
     //FIND BY ID
     @Transactional(readOnly = true)
-    public Professor buscarPorId(Long id){
-        return buscarEntidadePorId(id);
+    public ProfessorResponseDTO buscarPorId(Long id){
+        Professor professor = buscarEntidadePorId(id);
+        return ProfessorResponseDTO.fromEntity(professor);
     }
 
     //Atualizar
     @Transactional
-    public Professor atualizar(Long id , Professor professorAtualizado){
+    public ProfessorResponseDTO atualizar(Long id , ProfessorRequestDTO request){
         Professor professor = buscarEntidadePorId(id);
-        if (repository.existsByEmailAndIdNot(professorAtualizado.getEmail() , id)){
-            throw new AlreadyExistsException("Ja existe email com esse nome: "+ professorAtualizado.getEmail());
+        if (repository.existsByEmailAndIdNot(request.email() , id)){
+            throw new AlreadyExistsException("Ja existe email com esse nome: "+ request.email());
         }
 
-        professor.setNome(professorAtualizado.getNome());
-        professor.setEmail(professorAtualizado.getEmail());
-        professor.setEspecialidade(professorAtualizado.getEspecialidade());
+        professor.setNome(request.nome());
+        professor.setEmail(request.email());
+        professor.setEspecialidade(request.especialidade());
 
-        return professor;
+        Professor professorAtualizado = repository.save(professor);
+
+        return ProfessorResponseDTO.fromEntity(professorAtualizado);
     }
 
     @Transactional
